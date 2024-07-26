@@ -1,0 +1,16 @@
+- hosts: zabbix
+  become: yes
+  roles:
+    - role: geerlingguy.apache
+    - role: geerlingguy.php
+    - role: community.zabbix.zabbix_server
+      zabbix_server_database: mysql
+      zabbix_db_type_long: mysql
+      zabbix_server_dbport: 3306
+    - role: community.zabbix.zabbix_web
+      zabbix_api_server_url: zabbix.devops.com
+      zabbix_server_hostname: 192.168.10.11
+      zabbix_server_database: mysql
+      zabbix_db_type_long: mysql
+      zabbix_server_dbport: 3306
+    
