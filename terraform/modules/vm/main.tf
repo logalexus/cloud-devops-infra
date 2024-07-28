@@ -14,6 +14,7 @@ resource "yandex_compute_disk" "boot_disk" {
 
 resource "yandex_compute_instance" "vm" {
   name        = var.name
+  hostname    = var.name
   platform_id = var.instance_resources.platform_id
   zone        = local.zone
 

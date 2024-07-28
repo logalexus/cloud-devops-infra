@@ -1,0 +1,18 @@
+docker_postgres_name: postgres
+docker_postgres_port: 5432
+docker_postgres_image: postgres:latest
+docker_postgres_env:
+  POSTGRES_DB: postgres
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+docker_postgres_remove_existing_container: true
+docker_postgres_remove_existing_home_dir: true
+
+docker_postgres_home: "/opt/{{ docker_postgres_name }}"
+docker_postgres_directories:
+  - path: "{{ docker_postgres_home }}"
+  - path: "{{ docker_postgres_home }}/data"
+  - path: "{{ docker_postgres_home }}/conf"
+docker_postgres_directory_volumes:
+  - "{{ docker_postgres_home }}/conf:/etc/postgresql"
+  - "{{ docker_postgres_home }}/data:/var/lib/postgresql/data"
