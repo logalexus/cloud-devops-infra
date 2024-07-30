@@ -5,6 +5,6 @@
       docker_postgres_name: postgres
       docker_postgres_image: postgres:16.3
       docker_postgres_env:
-        POSTGRES_DB: postgres
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: chat
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass

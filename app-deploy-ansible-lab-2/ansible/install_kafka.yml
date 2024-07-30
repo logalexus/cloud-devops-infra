@@ -1,0 +1,4 @@
+- hosts: kafka
+  become: yes
+  roles:
+    - role: docker-kafka

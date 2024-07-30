@@ -28,9 +28,8 @@
     expose:
       - 5432
     ports: "{{ docker_postgres_port }}:5432"
-    user: postgres:postgres
     env: "{{ docker_postgres_env }}"
-    # volumes: "{{ docker_postgres_directory_volumes }}"
+    volumes: "{{ docker_postgres_directory_volumes }}"
 
 - name: Wait for postgres to be started
   wait_for:

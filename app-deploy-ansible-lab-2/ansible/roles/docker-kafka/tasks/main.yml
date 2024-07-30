@@ -1,0 +1,15 @@
+- name: Ensure /opt/kafka directory exists
+  ansible.builtin.file:
+    path: /opt/kafka
+    state: directory
+    mode: "0755"
+
+- name: Ensure docker-compose file is copied
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: /opt/kafka/docker-compose.yml
+
+- name: Start kafka container
+  community.docker.docker_compose_v2:
+    project_src: /opt/kafka
+    state: present

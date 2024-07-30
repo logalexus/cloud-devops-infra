@@ -1,0 +1,13 @@
+- name: Ensure repository is cloned and updated
+  ansible.builtin.git:
+    repo: "https://github.com/logalexus/chat-kafka.git"
+    dest: /opt/chat-kafka
+    version: master
+    update: yes
+
+- name: Start app containers
+  community.docker.docker_compose_v2:
+    project_src: /opt/chat-kafka
+    files:
+      - /opt/chat-kafka/docker-compose.prod.yml
+    build: always
