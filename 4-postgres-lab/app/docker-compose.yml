@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:alpine3.20
+    healthcheck:
+        test: pg_isready -U user
+        interval: 1s
+        timeout: 60s
+        retries: 60
+    ports:
+        - "5432:5432"
+    volumes:
+        - postgres_data:/var/lib/postgresql/data
+    environment:
+        POSTGRES_USER: user
+        POSTGRES_PASSWORD: pass
+        POSTGRES_DB: db
+
+  app:
+    build: .
+    ports:
+      - 8000:8000
+    environment:
+        DATABASE_URL: postgresql+psycopg2://user:pass@postgres:5432/db
+    
+volumes:
+  postgres_data:

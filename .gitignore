@@ -1,2 +1,5 @@
 .terraform*
 *tfstate*
+.venv
+__pycache__
+alert.sh.j2

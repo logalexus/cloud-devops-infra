@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi import Request
+from asyncio import sleep
 import os
 
 app = FastAPI()
@@ -15,6 +16,7 @@ ID_INSTANCE = os.getenv("ID_INSTANCE", "None")
 
 @app.get("/")
 async def root():
+    await sleep(2)
     return ID_INSTANCE
 
 @app.get("/cat", response_class=HTMLResponse)

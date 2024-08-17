@@ -1,0 +1,31 @@
+- name: Enusure keepalived installed
+  ansible.builtin.apt:
+    pkg:
+      - keepalived
+    state: present
+
+- name: Copy alert.sh
+  ansible.builtin.template:
+    src: alert.sh.j2
+    dest: /usr/local/sbin/alert.sh
+    mode: '0755'
+
+- name: Set ip forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_set: true
+
+- name: Set ip forwarding
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_nonlocal_bind
+    value: '1'
+    sysctl_set: true
+
+- name: Copy keepalived.conf
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: 'u=rw,g=r,o=r'
+  notify:
+    - Restart keepalived

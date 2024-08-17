@@ -1,0 +1,12 @@
+- name: Ensure haproxy installed
+  ansible.builtin.apt:
+    pkg:
+      - haproxy
+
+- name: Copy haproxy.cfg
+  ansible.builtin.template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 'u=rw,g=r,o=r'
+  notify:
+    - Restart haproxy

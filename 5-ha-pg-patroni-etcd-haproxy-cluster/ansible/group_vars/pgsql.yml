@@ -1,0 +1,17 @@
+postgres_version: 16
+
+patroni_scope: cluster-pgsql
+
+patroni_api_user: patroni
+patroni_api_password: patroni
+
+patroni_postgres_user: postgres
+patroni_postgres_password: postgres
+
+patroni_replicator_user: replicator
+patroni_replicator_password: replicator
+
+patroni_rewind_user: rewind
+patroni_rewind_password: rewind
+
+cluster_virtual_ip: "192.168.10.100"

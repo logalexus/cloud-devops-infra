@@ -1,0 +1,47 @@
+- name: Ensure python packages installed
+  ansible.builtin.pip:
+    name:
+      - patroni
+      - psycopg2-binary
+      - python-etcd
+      - python-consul
+    break_system_packages: true
+
+- name: Copy patroni.service systemd unit
+  ansible.builtin.template:
+    src: patroni.service
+    dest: /etc/systemd/system/patroni.service
+    mode: '0777'
+  notify:
+    - Reload systemd
+    - Restart patroni
+
+- name: Create /etc/patroni
+  ansible.builtin.file:
+    state: directory
+    dest: /etc/patroni
+    mode: 'u=rwx,g=rx,o=r'
+    owner: postgres
+    group: postgres
+  notify:
+    - Restart patroni
+
+- name: Create /var/lib/patroni
+  ansible.builtin.file:
+    state: directory
+    dest: /var/lib/patroni
+    mode: '0777'
+    owner: postgres
+    group: postgres
+  notify:
+    - Restart patroni
+
+- name: Copy postgres.yml to /etc/patroni
+  ansible.builtin.template:
+    src: postgres.yml.j2
+    dest: /etc/patroni/postgres.yml
+    mode: 'u=rwx,g=r,o=r'
+    owner: postgres
+    group: postgres
+  notify:
+    - Restart patroni

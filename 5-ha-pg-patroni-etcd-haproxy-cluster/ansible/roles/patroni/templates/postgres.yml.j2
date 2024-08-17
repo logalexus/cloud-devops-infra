@@ -1,0 +1,71 @@
+name: {{ inventory_hostname }}
+scope: {{ patroni_scope }}
+
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: {{ ansible_default_ipv4.address }}:8008
+  auth: '{{ patroni_api_user }}:{{ patroni_api_password }}'
+
+{% set etcd_nodes = [] %}
+{% for host in groups['etcd'] %}
+    {% set ansible_host = hostvars[host]['ansible_host'] %}
+    {% if ansible_host | ansible.utils.ipaddr %}
+        {% set ip = ansible_host %}
+    {% else %}
+        {% set ip = lookup('dig', ansible_host) %}
+    {% endif %}
+    {% set tmp = etcd_nodes.append(ip + ":2379") %}
+{% endfor %}
+{% set etcd_nodes = etcd_nodes | join(',') %}
+
+etcd3:
+  protocol: http
+  hosts: {{ etcd_nodes }}
+
+bootstrap: 
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        archive_mode: "on"
+        wal_level: hot_standby
+        archive_command: mkdir -p ../wal_archive && cp %p ../wal_archive/%f
+        max_wal_senders: 10
+        wal_keep_segments: 8
+        archive_timeout: 1800s
+        max_replication_slots: 5
+        hot_standby: "on"
+        wal_log_hints: "on"
+      pg_hba:
+        - host all postgres 127.0.0.1/32 trust
+        - host replication replicator 192.168.0.0/16 md5
+        - host replication replicator 127.0.0.1/32 trust
+        - host all all 0.0.0.0/0 md5
+        - host all all ::1/128 md5
+    initdb:
+      - encoding: UTF8
+      - data-checksums
+      
+postgresql:
+  listen: 0.0.0.0:5432
+  connect_address: {{ ansible_default_ipv4.address }}:5432
+  data_dir: /var/lib/postgresql/{{ postgres_version }}/main
+  bin_dir: /usr/lib/postgresql/{{ postgres_version }}/bin
+  pgpass: /tmp/pgpass
+  authentication:
+    replication:
+      username: {{ patroni_replicator_user }}
+      password: {{ patroni_replicator_password }}
+    superuser:
+      username: {{ patroni_postgres_user }}
+    rewind: 
+      username: {{ patroni_rewind_user }}
+      password: {{ patroni_rewind_password }}
+  parameters:
+    unix_socket_directories: /var/run/postgresql

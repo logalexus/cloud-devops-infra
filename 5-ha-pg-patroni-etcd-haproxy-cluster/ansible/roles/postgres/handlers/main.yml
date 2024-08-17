@@ -1,0 +1,5 @@
+- name: Disable postgres
+  ansible.builtin.service:
+    name: patroni
+    state: stopped
+    enabled: false

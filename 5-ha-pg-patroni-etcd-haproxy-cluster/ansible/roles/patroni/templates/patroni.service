@@ -1,0 +1,16 @@
+[Unit]
+Description=Runners to orchestrate a high-availability PostgreSQL
+After=syslog.target network.target
+
+[Service]
+Type=simple
+User=postgres
+Group=postgres
+Environment=PATH=PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/usr/lib/postgresql/16/bin
+ExecStart=/usr/local/bin/patroni /etc/patroni/postgres.yml
+KillMode=process
+TimeoutSec=10
+Restart=no
+
+[Install]
+WantedBy=multi-user.target

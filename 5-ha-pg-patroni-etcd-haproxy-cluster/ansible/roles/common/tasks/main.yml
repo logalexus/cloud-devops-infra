@@ -1,0 +1,5 @@
+- name: Install essential software
+  ansible.builtin.apt:
+    pkg:
+      - python3-pip
+    update_cache: true

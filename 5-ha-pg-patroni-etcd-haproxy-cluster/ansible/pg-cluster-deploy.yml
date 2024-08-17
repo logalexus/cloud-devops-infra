@@ -1,0 +1,15 @@
+- name: Etcd cluster deploy
+  hosts: etcd
+  become: true
+  roles:
+    - etcd
+
+- name: Postgres cluster deploy
+  hosts: pgsql
+  become: true
+  roles:
+    - common
+    - postgres
+    - patroni
+    - haproxy
+    - keepalived

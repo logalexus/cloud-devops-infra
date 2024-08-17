@@ -1,0 +1,49 @@
+- name: Install required packages
+  ansible.builtin.apt:
+    package:
+      - curl
+      - ca-certificates
+    state: present
+    update_cache: true
+
+- name: Create directory for PostgreSQL key
+  ansible.builtin.file:
+    path: /usr/share/postgresql-common/pgdg
+    state: directory
+    mode: '0755'
+
+- name: Download PostgreSQL repository signing key
+  ansible.builtin.get_url:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    dest: /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+    mode: '0644'
+
+- name: Add PostgreSQL repository
+  ansible.builtin.apt_repository:
+    repo: 'deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main' # yamllint disable-line rule:line-length
+    state: present
+    filename: 'pgdg.list'
+
+- name: Update apt package list
+  ansible.builtin.apt:
+    update_cache: true
+
+- name: Install postgresql-common
+  ansible.builtin.apt:
+    package:
+      - postgresql-common
+    state: present
+
+- name: Disable auto creation of PostgreSQL clusters
+  ansible.builtin.lineinfile:
+    dest: '/etc/postgresql-common/createcluster.conf'
+    line: 'create_main_cluster = false'
+    regexp: '.*create_main_cluster.*'
+
+- name: Install PostgreSQL
+  ansible.builtin.apt:
+    package:
+      - postgresql-client-{{ postgres_version }}
+      - postgresql-{{ postgres_version }}
+      - postgresql-contrib-{{ postgres_version }}
+    state: present

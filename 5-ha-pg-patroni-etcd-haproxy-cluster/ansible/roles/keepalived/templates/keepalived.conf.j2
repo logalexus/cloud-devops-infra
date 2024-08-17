@@ -1,0 +1,32 @@
+global_defs {
+   router_id {{ inventory_hostname }}
+}
+
+vrrp_script chk_haproxy {
+    script "killall -0 haproxy"
+    interval 1
+    weight -20
+    debug
+    fall 2
+    rise 2
+}
+
+vrrp_instance {{ inventory_hostname }} {
+    interface eth0
+    state BACKUP
+    virtual_router_id 150
+    priority {{ hostvars[inventory_hostname]['priority'] }}
+    authentication {
+        auth_type PASS
+        auth_pass secret_for_vrrp_auth
+    }
+    track_script {
+            chk_haproxy weight 20
+    }
+    virtual_ipaddress {
+            {{ cluster_virtual_ip }}/32 dev eth0
+    }
+    notify_master "/usr/bin/sh /usr/local/sbin/alert.sh '{{ inventory_hostname }} became MASTER'"
+    notify_backup "/usr/bin/sh /usr/local/sbin/alert.sh '{{ inventory_hostname }} became BACKUP'"
+    notify_fault "/usr/bin/sh /usr/local/sbin/alert.sh '{{ inventory_hostname }} became FAULT'"
+}

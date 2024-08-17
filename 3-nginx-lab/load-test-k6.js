@@ -9,5 +9,5 @@ export const options = {
 
 export default function () {
   http.get('http://localhost/');
-  sleep(0.009)
+  sleep(1)
 }
