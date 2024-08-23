@@ -1,0 +1,18 @@
+- name: Add Kubernetes APT repository
+  ansible.builtin.deb822_repository:
+    name: kubernetes
+    types: [deb]
+    uris: 'https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/'
+    signed_by: 'https://pkgs.k8s.io/core:/stable:/{{ k8s_version }}/deb/Release.key'
+    suites: [/]
+    state: present
+    enabled: true
+
+- name: Install kubeadm, kubectl and kubelet
+  ansible.builtin.apt:
+    package:
+      - kubeadm
+      - kubectl
+      - kubelet
+    state: present
+    update_cache: true

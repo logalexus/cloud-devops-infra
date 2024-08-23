@@ -1,0 +1,28 @@
+{% if ansible_host | ansible.utils.ipaddr %}
+    {% set host_ip = ansible_host %}
+{% else %}
+    {% set host_ip = lookup('dig', ansible_host) %}
+{% endif %}
+{% set cluster_nodes = [] %}
+{% for host in groups['etcd'] %}
+    {% set ansible_host = hostvars[host]['ansible_host'] %}
+    {% if ansible_host | ansible.utils.ipaddr %}
+        {% set ip = ansible_host %}
+    {% else %}
+        {% set ip = lookup('dig', ansible_host) %}
+    {% endif %}
+    {% set tmp = cluster_nodes.append(host + "=http://" + ip + ":2380") %}
+{% endfor %}
+{% set initial_cluster = cluster_nodes | join(',') %}
+
+ETCD_NAME={{ inventory_hostname }}
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+ETCD_LISTEN_PEER_URLS="http://{{ host_ip }}:2380"
+ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:2379,http://{{ host_ip }}:2379"
+
+ETCD_ADVERTISE_CLIENT_URLS="http://{{ host_ip }}:2379"
+ETCD_INITIAL_ADVERTISE_PEER_URLS="http://{{ host_ip }}:2380"
+ETCD_INITIAL_CLUSTER="{{ initial_cluster }}"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+

@@ -1,0 +1,43 @@
+- name: K8s common prepare
+  hosts: all
+  become: true
+  roles:
+    - prepare
+    - k8s-packages
+    - crio
+
+- name: Haproxy balancer prepare
+  hosts: balancer
+  become: true
+  roles:
+    - haproxy
+
+- name: K8s init cluster
+  hosts: control[0]
+  become: true
+  roles:
+    - k8s-init-cluster
+
+- name: K8s control join
+  hosts: control[1:]
+  become: true
+  roles:
+    - k8s-control-join
+
+- name: K8s worker join
+  hosts: workers
+  become: true
+  roles:
+    - k8s-worker-join
+
+- name: K8s post init cluster
+  hosts: control
+  become: true
+  roles:
+    - k8s-post-init-cluster
+
+- name: K8s install cni
+  hosts: control[0]
+  become: true
+  roles:
+    - k8s-flannel

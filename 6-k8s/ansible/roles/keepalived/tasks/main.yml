@@ -1,0 +1,19 @@
+- name: Enusure keepalived installed
+  ansible.builtin.apt:
+    pkg:
+      - keepalived
+    state: present
+
+- name: Copy check_apiserver.sh
+  ansible.builtin.template:
+    src: check_apiserver.sh.j2
+    dest: /etc/keepalived/check_apiserver.sh
+    mode: '0755'
+
+- name: Copy keepalived.conf
+  ansible.builtin.template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+    mode: 'u=rw,g=r,o=r'
+  notify:
+    - Restart keepalived

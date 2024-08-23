@@ -1,0 +1,63 @@
+- name: Install neccesary packages
+  ansible.builtin.apt:
+    package:
+      - wget
+      - curl
+      - gnupg
+      - sudo
+      - iptables
+    update_cache: true
+
+- name: Ensure the /etc/modules-load.d directory exists
+  ansible.builtin.file:
+    path: /etc/modules-load.d
+    state: directory
+    mode: '0755'
+
+- name: Load kernel modules for Kubernetes
+  ansible.builtin.lineinfile:
+    path: /etc/modules-load.d/k8s.conf
+    create: true
+    mode: '0644'
+    line: '{{ item }}'
+  loop:
+    - overlay
+    - br_netfilter
+
+- name: Load overlay module immediately
+  community.general.modprobe:
+    name: overlay
+    state: present
+
+- name: Load br_netfilter module immediately
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+
+- name: Ensure the /etc/sysctl.d directory exists
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    mode: '0755'
+
+- name: Set sysctl config
+  ansible.posix.sysctl:
+    name: '{{ item }}'
+    value: 1
+    state: present
+    reload: true
+  with_items:
+    - net.bridge.bridge-nf-call-ip6tables
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+
+- name: Disable swap
+  ansible.builtin.command: swapoff -a
+  register: swap_output
+  changed_when: swap_output.rc != 0
+
+- name: Remove swap from fstab
+  ansible.builtin.lineinfile:
+    path: '/etc/fstab'
+    regexp: '\sswap\s'
+    state: 'absent'

@@ -1,0 +1,22 @@
+- name: Add cri-o APT repository
+  ansible.builtin.deb822_repository:
+    name: crio
+    types: [deb]
+    uris: 'https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_version }}/deb/'
+    signed_by: 'https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_version }}/deb/Release.key'
+    suites: [/]
+    state: present
+    enabled: true
+
+- name: Install cri-o
+  ansible.builtin.apt:
+    package:
+      - cri-o
+    state: present
+    update_cache: true
+
+- name: Enable and start cri-o serice
+  ansible.builtin.service:
+    name: cri-o
+    enabled: true
+    state: started

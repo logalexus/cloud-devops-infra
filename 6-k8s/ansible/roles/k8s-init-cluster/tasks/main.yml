@@ -1,0 +1,28 @@
+- name: K8s init cluster
+  ansible.builtin.shell: 'kubeadm init --pod-network-cidr={{ k8s_pod_network_cidr }} --control-plane-endpoint "{{ hostvars["balancer-node"]["ansible_host"] }}:{{ k8s_apiserver_dest_port }}" --upload-certs > $HOME/cluster_initialized'
+  register: output
+  args:
+    chdir: $HOME
+    creates: cluster_initialized
+
+- name: Get control join command
+  ansible.builtin.shell: 'echo $(kubeadm token create --print-join-command) --control-plane --certificate-key $(kubeadm init phase upload-certs --upload-certs | grep -vw -e certificate -e Namespace)'
+  register: control_join_command
+
+- name: Get worker join command
+  ansible.builtin.shell: 'echo $(kubeadm token create --print-join-command)'
+  register: worker_join_command
+
+- name: Save control join command
+  ansible.builtin.copy:
+    content: '{{ control_join_command.stdout }}'
+    dest: /tmp/control_join_command
+    mode: '0777'
+  delegate_to: localhost
+
+- name: Save worker join command
+  ansible.builtin.copy:
+    content: '{{ worker_join_command.stdout }}'
+    dest: /tmp/worker_join_command
+    mode: '0777'
+  delegate_to: localhost
