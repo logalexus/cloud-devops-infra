@@ -1,5 +1,5 @@
 locals {
-  subnet_id = "e9b2hvniretjviruoq61"
+  subnet_id = "e9bud2skc42bn2h0vs1c"
 }
 
 module "vm" {

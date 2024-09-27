@@ -50,3 +50,4 @@ resource "yandex_dns_recordset" "rs1" {
   ttl     = 200
   data    = [yandex_compute_instance.vm.network_interface.0.ip_address]
 }
+

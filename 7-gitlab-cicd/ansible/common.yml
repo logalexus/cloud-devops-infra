@@ -1,0 +1,9 @@
+- name: Install common
+  hosts: all
+  become: true
+  pre_tasks:
+    - name: Apt update
+      ansible.builtin.apt:
+        update_cache: true
+  roles:
+    - role: geerlingguy.docker
